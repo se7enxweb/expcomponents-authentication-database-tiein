@@ -49,8 +49,10 @@
  *              );
  *     foreach ( $status as $line )
  *     {
- *         list( $key, $value ) = each( $line );
- *         echo $err[$key][$value] . "\n";
+ *         foreach ( $line as $key => $value )
+ *         {
+ *             echo $err[$key][$value] . "\n";
+ *         }
  *     }
  * }
  * else
@@ -88,13 +90,23 @@ class ezcAuthenticationDatabaseFilter extends ezcAuthenticationFilter implements
 {
     /**
      * Username is not found in the database.
+     *
+     * @deprecated Use STATUS_CREDENTIALS_INCORRECT instead to avoid user enumeration.
      */
     const STATUS_USERNAME_INCORRECT = 1;
 
     /**
      * Password is incorrect.
+     *
+     * @deprecated Use STATUS_CREDENTIALS_INCORRECT instead to avoid user enumeration.
      */
     const STATUS_PASSWORD_INCORRECT = 2;
+
+    /**
+     * Username or password is incorrect. Use this instead of STATUS_USERNAME_INCORRECT
+     * and STATUS_PASSWORD_INCORRECT to prevent user enumeration attacks.
+     */
+    const STATUS_CREDENTIALS_INCORRECT = 3;
 
     /**
      * Holds the attributes which will be requested during the authentication
@@ -223,27 +235,12 @@ class ezcAuthenticationDatabaseFilter extends ezcAuthenticationFilter implements
     {
         $db = $this->database;
 
-        // see if username exists
+        // Single query matching both username and password to prevent:
+        //   1. User enumeration via distinct error codes
+        //   2. Timing side-channel (two DB round-trips for valid username vs. one)
         $query = new ezcQuerySelect( $db->instance );
         $e = $query->expr;
         $query->select( 'COUNT( ' . $db->instance->quoteIdentifier( $db->fields[0] ) . ' )' )
-              ->from( $db->instance->quoteIdentifier( $db->table ) )
-              ->where(
-                  $e->eq( $db->instance->quoteIdentifier( $db->fields[0] ), $query->bindValue( $credentials->id ) )
-                     );
-        $rows = $query->prepare();
-        $rows->execute();
-        $count = (int)$rows->fetchColumn( 0 );
-        if ( $count === 0 )
-        {
-            return self::STATUS_USERNAME_INCORRECT;
-        }
-        $rows->closeCursor();
-
-        // see if username has the specified password
-        $query = new ezcQuerySelect( $db->instance );
-        $e = $query->expr;
-        $query->select( 'COUNT( ' . $db->instance->quoteIdentifier( $db->fields[0] ) . '  )' )
               ->from( $db->instance->quoteIdentifier( $db->table ) )
               ->where( $e->lAnd(
                   $e->eq( $db->instance->quoteIdentifier( $db->fields[0] ), $query->bindValue( $credentials->id ) ),
@@ -254,7 +251,9 @@ class ezcAuthenticationDatabaseFilter extends ezcAuthenticationFilter implements
         $count = (int)$rows->fetchColumn( 0 );
         if ( $count === 0 )
         {
-            return self::STATUS_PASSWORD_INCORRECT;
+            // Do NOT distinguish between wrong username and wrong password —
+            // returning separate codes enables user enumeration attacks.
+            return self::STATUS_CREDENTIALS_INCORRECT;
         }
         $rows->closeCursor();
 
