@@ -1,3 +1,11 @@
+Unreleased - se7enxweb/expcomponents-authentication-database-tiein
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Renamed: The package is se7enxweb/expcomponents-authentication-database-tiein, Exponential's
+  maintained fork of Zeta Components Authentication Database Tiein. It replaces zetacomponents/authentication-database-tiein,
+  so packages that require zetacomponents/authentication-database-tiein keep working. Class names
+  (ezc*) are unchanged.
+
 1.2 - Saturday 27 September 2014
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
