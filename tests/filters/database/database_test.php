@@ -25,7 +25,7 @@
  * @subpackage Tests
  */
 
-include_once( 'AuthenticationDatabaseTiein/tests/test.php' );
+include_once( __DIR__ . '/../../test.php' );
 
 /**
  * @package AuthenticationDatabaseTiein
@@ -43,10 +43,10 @@ class ezcAuthenticationDatabaseTest extends ezcAuthenticationDatabaseTieinTest
 
     public static function suite()
     {
-        return new PHPUnit_Framework_TestSuite( "ezcAuthenticationDatabaseTest" );
+        return new \PHPUnit\Framework\TestSuite( "ezcAuthenticationDatabaseTest" );
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         try
         {
@@ -131,7 +131,7 @@ class ezcAuthenticationDatabaseTest extends ezcAuthenticationDatabaseTieinTest
         }
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->db->exec( 'DROP TABLE ' . $this->db->quoteIdentifier( self::$table ) );
     }

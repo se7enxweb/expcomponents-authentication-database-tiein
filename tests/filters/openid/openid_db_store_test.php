@@ -25,9 +25,10 @@
  * @subpackage Tests
  */
 
-include_once( 'AuthenticationDatabaseTiein/tests/test.php' );
-include_once( 'Authentication/tests/filters/openid/data/openid_wrapper.php' );
-include_once( 'data/openid_db_store_helper.php' );
+include_once( __DIR__ . '/../../test.php' );
+include_once( EXPCOMPONENTS_AUTHENTICATION_TESTS . '/filters/openid/data/openid_wrapper.php' );
+include_once( __DIR__ . '/data/openid_db_store_helper.php' );
+include_once( __DIR__ . '/data/openid_replay_provider_wrapper.php' );
 
 /**
  * @package AuthenticationDatabaseTiein
@@ -92,10 +93,10 @@ class ezcAuthenticationOpenidDbStoreTest extends ezcAuthenticationDatabaseTieinT
                                                                      time() - 1180536597 + 604800, // valid 1 week from current time
                                                                      'HMAC-SHA1' );
 
-        return new PHPUnit_Framework_TestSuite( __CLASS__ );
+        return new \PHPUnit\Framework\TestSuite( __CLASS__ );
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->origGet = $_GET;
         $this->origServer = $_SERVER;
@@ -120,7 +121,7 @@ class ezcAuthenticationOpenidDbStoreTest extends ezcAuthenticationDatabaseTieinT
 
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if ( $this->db !== null )
         {
@@ -257,9 +258,10 @@ class ezcAuthenticationOpenidDbStoreTest extends ezcAuthenticationDatabaseTieinT
         $options->mode = ezcAuthenticationOpenidFilter::MODE_SMART;
         $options->store = new ezcAuthenticationOpenidDbStore( $this->db );
 
-        $filter = new ezcAuthenticationOpenidWrapper( $options );
+        $filter = new ezcAuthenticationOpenidReplayProviderWrapper( $options );
         $result = $filter->run( $credentials );
         $this->assertEquals( ezcAuthenticationOpenidFilter::STATUS_SIGNATURE_INCORRECT, $result );
+        $this->assertSame( array( 'check_authentication' ), array_column( $filter->calls, 0 ), 'the provider was asked to check the signature' );
     }
 
     public function testOpenidWrapperRunModeIdResSmartModeDbStoreExistent()
@@ -274,7 +276,7 @@ class ezcAuthenticationOpenidDbStoreTest extends ezcAuthenticationDatabaseTieinT
             'openid.assoc_type' => 'HMAC-SHA1',
             );
 
-        $filter = new ezcAuthenticationOpenidWrapper();
+        $filter = new ezcAuthenticationOpenidReplayProviderWrapper();
         $res = $filter->associate( self::$provider, $params );
         $secret = isset( $res['enc_mac_key'] ) ? $res['enc_mac_key'] : $res['mac_key'];
         $association = new ezcAuthenticationOpenidAssociation( $res['assoc_handle'],
@@ -292,7 +294,7 @@ class ezcAuthenticationOpenidDbStoreTest extends ezcAuthenticationDatabaseTieinT
         $options->store = new ezcAuthenticationOpenidDbStore( $this->db );
         $options->store->storeAssociation( self::$provider, $association );
 
-        $filter = new ezcAuthenticationOpenidWrapper( $options );
+        $filter = new ezcAuthenticationOpenidReplayProviderWrapper( $options );
         $result = $filter->run( $credentials );
         $this->assertEquals( ezcAuthenticationOpenidFilter::STATUS_SIGNATURE_INCORRECT, $result );
     }
@@ -334,9 +336,10 @@ class ezcAuthenticationOpenidDbStoreTest extends ezcAuthenticationDatabaseTieinT
         $options = new ezcAuthenticationOpenidOptions();
         $options->store = new ezcAuthenticationOpenidDbStore( $this->db );
 
-        $filter = new ezcAuthenticationOpenidWrapper( $options );
+        $filter = new ezcAuthenticationOpenidReplayProviderWrapper( $options );
         $result = $filter->run( $credentials );
         $this->assertEquals( ezcAuthenticationOpenidFilter::STATUS_SIGNATURE_INCORRECT, $result );
+        $this->assertSame( array( 'check_authentication' ), array_column( $filter->calls, 0 ), 'the provider was asked to check the signature' );
     }
 
     public function testOpenidWrapperRunModeIdResDbStoreExistent()
@@ -353,9 +356,10 @@ class ezcAuthenticationOpenidDbStoreTest extends ezcAuthenticationDatabaseTieinT
         $options = new ezcAuthenticationOpenidOptions();
         $options->store = new ezcAuthenticationOpenidDbStore( $this->db );
 
-        $filter = new ezcAuthenticationOpenidWrapper( $options );
+        $filter = new ezcAuthenticationOpenidReplayProviderWrapper( $options );
         $result = $filter->run( $credentials );
         $this->assertEquals( ezcAuthenticationOpenidFilter::STATUS_SIGNATURE_INCORRECT, $result );
+        $this->assertSame( array( 'check_authentication' ), array_column( $filter->calls, 0 ), 'the provider was asked to check the signature' );
     }
 
     public function testOpenidWrapperRunModeIdResDbStoreNonceValid()
@@ -376,9 +380,10 @@ class ezcAuthenticationOpenidDbStoreTest extends ezcAuthenticationDatabaseTieinT
 
         $credentials = new ezcAuthenticationIdCredentials( self::$url );
 
-        $filter = new ezcAuthenticationOpenidWrapper( $options );
+        $filter = new ezcAuthenticationOpenidReplayProviderWrapper( $options );
         $result = $filter->run( $credentials );
         $this->assertEquals( ezcAuthenticationOpenidFilter::STATUS_SIGNATURE_INCORRECT, $result );
+        $this->assertSame( array( 'check_authentication' ), array_column( $filter->calls, 0 ), 'the provider was asked to check the signature' );
     }
 
     public function testOpenidWrapperRunModeIdResDbStoreNonceInvalid()

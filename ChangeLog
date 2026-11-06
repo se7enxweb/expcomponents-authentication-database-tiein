@@ -13,6 +13,11 @@ Unreleased - se7enxweb/expcomponents-authentication-database-tiein
 - Added: NOTICE keeps the upstream copyright notices and names the fork;
   README.md describes the fork.
 - Added: A GitHub Actions workflow running the test suite on PHP 7.4 to 8.5.
+- Updated: The tests run on PHPUnit 9 (PHP 7.4 to 8.5) against an in-memory
+  SQLite database by default (ZETA_TESTSUITE_DSN in the environment selects
+  another). The OpenID tests that called www.myopenid.com, which shut down in
+  2014, replay its answers through a test double and assert that the provider
+  round trip happened; the database store runs for real.
 
 
 1.2 - Saturday 27 September 2014
