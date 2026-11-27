@@ -2,7 +2,7 @@
 
 The purpose of the Authentication component is to provide support for different means of identification and authentication of users using different providers and protocols.
 
-This is the Exponential fork of [zetacomponents/AuthenticationDatabaseTiein](https://github.com/zetacomponents/AuthenticationDatabaseTiein),
+This is the Exponential Components fork of [zetacomponents/AuthenticationDatabaseTiein](https://github.com/zetacomponents/AuthenticationDatabaseTiein),
 maintained by 7x (se7en.x) and the Exponential Foundation for Exponential and anyone else
 who uses the Zeta Components Authentication Database Tiein component on current PHP versions. All credit for the
 component goes to the Zeta Components authors listed in `composer.json` and `CREDITS`;
